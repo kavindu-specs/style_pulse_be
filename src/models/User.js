@@ -1,6 +1,6 @@
 const mongoose = require("mongoose") 
-const Category = require('./Category');
-const ProductSchema = new mongoose.Schema({
+
+const UserSchema = new mongoose.Schema({
     code:{
         type:String,
         required:true,
@@ -55,4 +55,4 @@ const ProductSchema = new mongoose.Schema({
 
 })
 
-module.exports = mongoose.model('Product',ProductSchema)
+module.exports = mongoose.model('User',UserSchema)
