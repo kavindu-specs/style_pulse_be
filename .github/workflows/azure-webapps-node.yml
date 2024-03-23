@@ -19,7 +19,7 @@
 
 on:
   push:
-    branches: [ "master","development" ]
+    branches: [ "development" ]
   workflow_dispatch:
 
 env:
