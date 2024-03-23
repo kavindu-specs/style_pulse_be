@@ -1,10 +1,11 @@
 const mongoose = require("mongoose") 
-const Category = require('./Category');
-const ProductSchema = new mongoose.Schema({
+
+const VarientSchema = new mongoose.Schema({
     code:{
         type:String,
         required:true,
         unique:true
+      
     },
     name:{
         type:String,
@@ -16,43 +17,37 @@ const ProductSchema = new mongoose.Schema({
         required:true
  
     },
-    defaultPrice:{
-        type:Number,
-        required:true,
-
-    },
     thumbnailImage:{
         type:String,
         required:true
        
     },
-    isMoreToLove:{
+    price:{
         type:Number,
         required:true,
 
     },
-    rating:{
+    isDefault:{
         type:Number,
         required:true,
-
     },
-    specialNote:{
-        type:String,
-        required:true,
-
-    },
-    isNewArrival:{
-       type:Number,
-       required:true,
-
-    },
-    category:{
+    product:{
         type:mongoose.Schema.ObjectId,
-        ref:"Category",
-      
-     }
+        ref:"Product",
+        required:true
+     },
+    stock:{
+       type:Number,
+       required:true
+    },
+    options:{
+       type:Object,
 
-
+    },
+    
 })
 
-module.exports = mongoose.model('Product',ProductSchema)
+
+
+
+module.exports = mongoose.model('Varient',VarientSchema)
