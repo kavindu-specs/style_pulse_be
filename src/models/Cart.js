@@ -1,37 +1,41 @@
 const mongoose = require("mongoose") 
-
+const Product = require('./Product');
+const Varient = require('./Varient');
 const CartSchema = new mongoose.Schema({
     
-    token:{
-        type:String,
-        required:true
-
-    },
-    userName:{
+  
+    deviceId:{
         type:String,
         required:true
  
     },
-    product:{
-        type:mongoose.Schema.ObjectId,
-        ref:"Product",
-        required:true
-       
-    },
-    varient:{
-        type:mongoose.Schema.ObjectId,
-        ref:"Varient",
-        required:true
-    },
-    varientCode:{
+    userName:{
         type:String,
-        required:true,
-
+        
     },
-    quantity:{
+    
+    products:[
+        {
+       productId:{
+         type: mongoose.Schema.ObjectId,
+         ref:"Product",
+       }, 
+    //    varientId:{
+    //     type: mongoose.Schema.ObjectId,
+    //     ref:"Varient"
+    //    },
+       quantity:{
         type:Number,
-        required:true,
-    },
+        default:1
+        
+       },
+       displayName:{
+         type:String,
+         required:true,
+       },
+     }
+
+    ]
 
     
 })
