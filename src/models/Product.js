@@ -36,6 +36,15 @@ const ProductSchema = new mongoose.Schema({
         required:true,
 
     },
+    discount:{
+        type:Number,
+        required:true,
+        default:0
+    },
+    isTaxEnabled:{
+        type:Number,
+        default:0
+    },
     specialNote:{
         type:String,
         required:true,

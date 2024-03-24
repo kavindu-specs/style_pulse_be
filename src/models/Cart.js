@@ -20,10 +20,9 @@ const CartSchema = new mongoose.Schema({
          type: mongoose.Schema.ObjectId,
          ref:"Product",
        }, 
-    //    varientId:{
-    //     type: mongoose.Schema.ObjectId,
-    //     ref:"Varient"
-    //    },
+       varient:{
+        type: Object
+       },
        quantity:{
         type:Number,
         default:1
