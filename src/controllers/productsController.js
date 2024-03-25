@@ -10,11 +10,16 @@ exports.getproducts = async (req,res,next)=>{
         let queryStr = JSON.stringify(req.query);
 
         let reqQr = {...req.query}
-     console.log(reqQr)
+     
         
         const category  = await Category.findOne({code:req.query.category})
-console.log(category.id)
-        let query = Product.find({category:category.id})
+       
+        if (category){
+            reqQr.category =category.id
+
+        }
+        console.log(reqQr)
+        let query = Product.find(reqQr)
         // const removeField = ["select"]
 
         // removeField.forEach(param => delete reqQr[param])
