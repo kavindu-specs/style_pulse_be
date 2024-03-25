@@ -1,6 +1,6 @@
 const errorResponse = require("../utils/errorResponse")
 const Product =require("../models/Product");
-
+const Category =require("../models/Category");
 
 
 exports.getproducts = async (req,res,next)=>{
@@ -10,24 +10,28 @@ exports.getproducts = async (req,res,next)=>{
         let queryStr = JSON.stringify(req.query);
 
         let reqQr = {...req.query}
-     
-        const removeField = ["select"]
+     console.log(reqQr)
+        
+        const category  = await Category.findOne({code:req.query.category})
+console.log(category.id)
+        let query = Product.find({category:category.id})
+        // const removeField = ["select"]
 
-        removeField.forEach(param => delete reqQr[param])
+        // removeField.forEach(param => delete reqQr[param])
 
-        queryStr = queryStr.replace(/\b(gt|gte|lt|lte|in)\b/,match=>`$${match}`)
+        // queryStr = queryStr.replace(/\b(gt|gte|lt|lte|in)\b/,match=>`$${match}`)
     
 
-        let query = Product.find(JSON.parse(queryStr));
+        // let query = Product.find(JSON.parse(queryStr));
 
        
-        if(req.query.sort){
-            const sortBy = req.query.sort.split(',').join(' ')
-            query = query.sort(sortBy)
-        }else{
-            query = query.sort("-createdAt")
-        }
-
+        // if(req.query.sort){
+        //     const sortBy = req.query.sort.split(',').join(' ')
+        //     query = query.sort(sortBy)
+        // }else{
+        //     query = query.sort("-createdAt")
+        // }
+//
         const page = parseInt(req.query.page,10)||1;
         const limit = parseInt(req.query.limit,10)||10;
 
