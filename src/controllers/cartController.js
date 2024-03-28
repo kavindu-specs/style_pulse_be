@@ -1,6 +1,7 @@
 const errorResponse = require("../utils/errorResponse")
 const Cart =require("../models/Cart");
 const Product =require("../models/Product");
+const cartHelper =require("../helpers/cartHelper");
 
 const { query } = require("express");
 
@@ -22,28 +23,29 @@ exports.getCartItems = async (req,res,next)=>{
             return res.status(422).json({"status":false,"data":null}) 
         }
         
-        let cartSubTotal=0,cartTotal=0,taxTotal=0,itemsCount=0,discountTotal= 0;
+        // let cartSubTotal=0,cartTotal=0,taxTotal=0,itemsCount=0,discountTotal= 0;
 
-        cartDetails.products.forEach(product=>{
+        // cartDetails.products.forEach(product=>{
 
-            cartSubTotal += product.productId.defaultPrice*product.quantity
-            taxTotal += parseInt(product.productId.isTaxEnabled)===1?product.productId.defaultPrice*0.08*product.quantity : 0
-            console.log(parseInt(product.productId.isTaxEnabled))
-            itemsCount += 1
-            discountTotal += product.productId.defaultPrice*product.productId.discount*0.01*product.quantity;
+        //     cartSubTotal += product.productId.defaultPrice*product.quantity
+        //     taxTotal += parseInt(product.productId.isTaxEnabled)===1?product.productId.defaultPrice*0.08*product.quantity : 0
+        //     console.log(parseInt(product.productId.isTaxEnabled))
+        //     itemsCount += 1
+        //     discountTotal += product.productId.defaultPrice*product.productId.discount*0.01*product.quantity;
            
-        })
-        cartTotal = cartSubTotal +taxTotal - discountTotal
+        // })
+        // cartTotal = cartSubTotal +taxTotal - discountTotal
 
-        cartDetails = cartDetails.toObject();
+        // cartDetails = cartDetails.toObject();
 
-        cartDetails.cartSubTotal = cartSubTotal
-        cartDetails.taxTotal = taxTotal
-        cartDetails.itemsCount = itemsCount
-        cartDetails.discountTotal = discountTotal
-        cartDetails.cartTotal = cartTotal
+        // cartDetails.cartSubTotal = cartSubTotal
+        // cartDetails.taxTotal = taxTotal
+        // cartDetails.itemsCount = itemsCount
+        // cartDetails.discountTotal = discountTotal
+        // cartDetails.cartTotal = cartTotal
+        let cartData = cartHelper.calculateCart(cartDetails)
 
-        return res.status(200).json({"status":true,"data":cartDetails}) 
+        return res.status(200).json({"status":true,"data":cartData}) 
         
     }catch(err){
         console.log(err)
@@ -55,28 +57,27 @@ exports.getCartItems = async (req,res,next)=>{
 exports.addItems = async (req,res,next)=>{
 
     try{
-console.log(req.body)
 
         let existingProducts = await Cart.findOne({deviceId:req.body.deviceId}) 
     
         if(existingProducts){
-            const productExists = existingProducts.products.some(product => product.productId == req.body.products.productId);
+            const productExists = existingProducts.products.some(product => product.varientId == req.body.products.varientId);
          
             if (productExists) {
-                return res.status(422).json({ "status": false, "data": null });
+                return res.status(422).json({ "status": false, "data": [] });
             } else {
                console.log(req.body.products)
                 existingProducts.products.push(req.body.products);
                 await existingProducts.save();
                 console.log("edcedc");
-                return res.status(200).json({ "status": true, "data": null });
+                return res.status(200).json({ "status": true, "data": [] });
             }
           
         }
 
         const items = await Cart.create(req.body);
 
-        return res.status(201).json({"status":true,"msg":"Successfull",})
+        return res.status(201).json({"status":true,"data":[]})
         
     }catch(err){
         console.log(err)
@@ -89,20 +90,30 @@ exports.removeItems = async (req,res,next)=>{
 
     try{
 
-        let existingProducts = await Cart.findOne({ deviceId: req.body.deviceId });
-        let product = await Product.findOne({ code: req.params.code });
+        let existingProducts = await Cart.findOne({ deviceId: req.params.deviceId });
     
-        if (!existingProducts || !product) {
-            return res.status(200).json({ "status": false, "msg": "No item found", data: null });
+        if (!existingProducts) {
+            return res.status(200).json({ "status": false, data: null });
         }
     
         // Filter out the product with the matching productId
-        existingProducts.products = existingProducts.products.filter(item => item.productId.toString() !== product._id.toString());
-    
-        await existingProducts.save();
-    
+        existingProducts.products = existingProducts.products.filter(item => item.varientId !== req.params.code);
 
-        return res.status(201).json({"status":true,"msg":"deleted","data":null})
+        if( existingProducts.products.length===0){
+           await existingProducts.deleteOne()
+           
+        }else{
+          await existingProducts.save();
+         
+        }
+
+        let cartDetails = await Cart.findOne({ deviceId: req.params.deviceId }).populate("products.productId");
+        if(!cartDetails){
+            return res.status(422).json({"status":true,"data":null}) 
+        }
+        let cartData = cartHelper.calculateCart(cartDetails)
+
+        return res.status(200).json({"status":true,"data":cartData})
         
     }catch(err){
         next(err)
@@ -113,17 +124,26 @@ exports.removeItems = async (req,res,next)=>{
 exports.updateQuantity = async (req,res,next)=>{
 
     try{
+        console.log(res.body)
+        let cart = await Cart.findOne({ deviceId: req.body.deviceId });
+console.log(cart)
+        cart.products.forEach((item)=>{
+            if (item.varientId === req.body.varientId){
+                console.log(item.varientId)
+                item.quantity = req.body.mark === "p"?item.quantity+1:item.quantity-1;
+            }
+        })
+       
+        await cart.save()
 
-        let existingProducts = await Cart.findOne({ deviceId: req.body.deviceId });
+        let cartDetails = await Cart.findOne({ deviceId: req.body.deviceId }).populate("products.productId");
 
-        orderDetails.username = req.params.username
+        let cartData = cartHelper.calculateCart(cartDetails)
 
-        let query = Cart.findMany(orderDetails);
-
-
-        return res.status(200).json({"status":true,"data":null}) 
+        return res.status(200).json({"status":true,"data":cartData})
         
     }catch(err){
+        console.log(err)
         next(err)
     }
    

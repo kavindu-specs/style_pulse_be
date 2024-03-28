@@ -20,6 +20,9 @@ const CartSchema = new mongoose.Schema({
          type: mongoose.Schema.ObjectId,
          ref:"Product",
        }, 
+       varientId:{
+        type: String
+       },
        varient:{
         type: Object
        },
