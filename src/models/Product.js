@@ -64,7 +64,13 @@ const ProductSchema = new mongoose.Schema({
         type:mongoose.Schema.ObjectId,
         ref:"Category",
       
+     },
+     option:{
+        type:Object,
+       
+      
      }
+
 
 
 })
