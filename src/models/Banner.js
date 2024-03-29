@@ -17,10 +17,10 @@ const BannerSchema = new mongoose.Schema({
         required:true
        
     },
-    image:[{ 
+    image:{ 
         type: String,
         required: true,
-    }],
+    },
 
     
 })
