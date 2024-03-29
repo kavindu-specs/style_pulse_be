@@ -7,7 +7,7 @@ exports.getBanners = async (req,res,next)=>{
 
     try{
      
-        let query = Banner.find();
+        let query = Banner.findOne();
 
       
         const page = parseInt(req.query.page,10)||1;
