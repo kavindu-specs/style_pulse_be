@@ -66,11 +66,11 @@ exports.addItems = async (req,res,next)=>{
             if (productExists) {
                 return res.status(422).json({ "status": false, "data": [] });
             } else {
-               console.log(req.body.products)
+     
                 existingProducts.products.push(req.body.products);
                 await existingProducts.save();
-                console.log("edcedc");
                 return res.status(200).json({ "status": true, "data": [] });
+
             }
           
         }
@@ -96,7 +96,6 @@ exports.removeItems = async (req,res,next)=>{
             return res.status(200).json({ "status": false, data: null });
         }
     
-        // Filter out the product with the matching productId
         existingProducts.products = existingProducts.products.filter(item => item.varientId !== req.params.code);
 
         if( existingProducts.products.length===0){
@@ -124,7 +123,7 @@ exports.removeItems = async (req,res,next)=>{
 exports.updateQuantity = async (req,res,next)=>{
 
     try{
-        console.log(res.body)
+        console.log(req.body)
         let cart = await Cart.findOne({ deviceId: req.body.deviceId });
 console.log(cart)
         cart.products.forEach((item)=>{
@@ -148,3 +147,36 @@ console.log(cart)
     }
    
 }
+
+exports.updateItemVarient = async (req,res,next)=>{
+
+    try{
+
+        let cart = await Cart.findOne({ deviceId: req.body.deviceId });
+
+        cart.products.forEach((item)=>{
+            if (item.varientId === req.body.varientId){
+               
+                item.varientId = req.body.newVarientId
+                item.varient = {size:req.body.size,color:req.body.color}
+                
+                //item.varient.color = req.body.color
+                console.log(item.varient )
+            }
+        })
+       
+        await cart.save()
+
+        let cartDetails = await Cart.findOne({ deviceId: req.body.deviceId }).populate("products.productId");
+
+        let cartData = cartHelper.calculateCart(cartDetails)
+
+        return res.status(200).json({"status":true,"data":cartData})
+        
+    }catch(err){
+        console.log(err)
+        next(err)
+    }
+   
+}
+

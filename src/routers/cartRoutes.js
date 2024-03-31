@@ -9,4 +9,6 @@ router.route('/').post(cartController.addItems)
 router.route('/:deviceId/:code').delete(cartController.removeItems)
 router.route('/').put(cartController.updateQuantity )
 
+router.route('/varient').put(cartController.updateItemVarient)
+
 module.exports = router;
