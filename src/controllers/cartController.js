@@ -23,26 +23,6 @@ exports.getCartItems = async (req,res,next)=>{
             return res.status(422).json({"status":false,"data":null}) 
         }
         
-        // let cartSubTotal=0,cartTotal=0,taxTotal=0,itemsCount=0,discountTotal= 0;
-
-        // cartDetails.products.forEach(product=>{
-
-        //     cartSubTotal += product.productId.defaultPrice*product.quantity
-        //     taxTotal += parseInt(product.productId.isTaxEnabled)===1?product.productId.defaultPrice*0.08*product.quantity : 0
-        //     console.log(parseInt(product.productId.isTaxEnabled))
-        //     itemsCount += 1
-        //     discountTotal += product.productId.defaultPrice*product.productId.discount*0.01*product.quantity;
-           
-        // })
-        // cartTotal = cartSubTotal +taxTotal - discountTotal
-
-        // cartDetails = cartDetails.toObject();
-
-        // cartDetails.cartSubTotal = cartSubTotal
-        // cartDetails.taxTotal = taxTotal
-        // cartDetails.itemsCount = itemsCount
-        // cartDetails.discountTotal = discountTotal
-        // cartDetails.cartTotal = cartTotal
         let cartData = cartHelper.calculateCart(cartDetails)
 
         return res.status(200).json({"status":true,"data":cartData}) 
@@ -108,7 +88,7 @@ exports.removeItems = async (req,res,next)=>{
 
         let cartDetails = await Cart.findOne({ deviceId: req.params.deviceId }).populate("products.productId");
         if(!cartDetails){
-            return res.status(422).json({"status":true,"data":null}) 
+            return res.status(422).json({"status":false,"data":null}) 
         }
         let cartData = cartHelper.calculateCart(cartDetails)
 
