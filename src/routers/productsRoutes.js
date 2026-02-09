@@ -7,4 +7,5 @@ const productsController = require("../controllers/productsController")
 router.route('/:code').get(productsController.getProduct)
 router.route('/').get(productsController.getproducts)
 
+
 module.exports = router;

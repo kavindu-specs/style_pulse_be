@@ -8,6 +8,7 @@ const contents = require("./routers/contentsRoutes")
 const products = require("./routers/productsRoutes")
 const categories = require("./routers/categoriesRoutes")
 const cart = require("./routers/cartRoutes")
+const user = require("./routers/userRoutes")
 
 const connectDB = require("./config/db")
 const app = express();
@@ -26,6 +27,7 @@ app.use('/api/v1/contents',contents)
 app.use('/api/v1/products',products)
 app.use('/api/v1/categories',categories)
 app.use('/api/v1/cart',cart)
+app.use('/api/v1/user',user)
 
 app.use( errorHandler)
 

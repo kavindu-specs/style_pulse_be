@@ -1,6 +1,7 @@
 const errorResponse = require("../utils/errorResponse")
 const Cart =require("../models/Cart");
 const Product =require("../models/Product");
+const cartHelper =require("../helpers/cartHelper");
 
 const { query } = require("express");
 
@@ -8,15 +9,26 @@ const { query } = require("express");
 exports.getCartItems = async (req,res,next)=>{
 
     try{
-
-        let results = {}
-        let query = Cart.findMany({username:req.params.username});
         
-        const cart = await query;
+        const cartId = req.query.username ? req.query.username:req.query.deviceId
+       
+        let query = Cart.findOne({deviceId: req.query.deviceId}).populate("products.productId");
+        
+        if(req.query.username){
+            query = Cart.findOne({username: req.query.username}).populate("products.productId");
+        }
 
-        return res.status(200).json({"status":true,"data":cart}) 
+        let cartDetails = await query;
+        if(!cartDetails){
+            return res.status(422).json({"status":false,"data":null}) 
+        }
+        
+        let cartData = cartHelper.calculateCart(cartDetails)
+
+        return res.status(200).json({"status":true,"data":cartData}) 
         
     }catch(err){
+        console.log(err)
         next(err)
     }
    
@@ -26,22 +38,29 @@ exports.addItems = async (req,res,next)=>{
 
     try{
 
-    
         let existingProducts = await Cart.findOne({deviceId:req.body.deviceId}) 
     
         if(existingProducts){
-           
-            existingProducts.products.push(...req.body.products);
-            await existingProducts.save();
+            const productExists = existingProducts.products.some(product => product.varientId == req.body.products.varientId);
+         
+            if (productExists) {
+                return res.status(422).json({ "status": false, "data": [] });
+            } else {
+     
+                existingProducts.products.push(req.body.products);
+                await existingProducts.save();
+                return res.status(200).json({ "status": true, "data": [] });
 
-            return res.status(200).json({"status":true,"data":null}) 
+            }
+          
         }
 
         const items = await Cart.create(req.body);
 
-        return res.status(201).json({"status":true,"msg":"item added","data":items})
+        return res.status(201).json({"status":true,"data":[]})
         
     }catch(err){
+        console.log(err)
         next(err)
     }
    
@@ -51,20 +70,29 @@ exports.removeItems = async (req,res,next)=>{
 
     try{
 
-        let existingProducts = await Cart.findOne({ deviceId: req.body.deviceId });
-        let product = await Product.findOne({ code: req.params.code });
+        let existingProducts = await Cart.findOne({ deviceId: req.params.deviceId });
     
-        if (!existingProducts || !product) {
-            return res.status(200).json({ "status": false, "msg": "No item found", data: null });
+        if (!existingProducts) {
+            return res.status(200).json({ "status": false, data: null });
         }
     
-        // Filter out the product with the matching productId
-        existingProducts.products = existingProducts.products.filter(item => item.productId.toString() !== product._id.toString());
-    
-        await existingProducts.save();
-    
+        existingProducts.products = existingProducts.products.filter(item => item.varientId !== req.params.code);
 
-        return res.status(201).json({"status":true,"msg":"deleted","data":null})
+        if( existingProducts.products.length===0){
+           await existingProducts.deleteOne()
+           
+        }else{
+          await existingProducts.save();
+         
+        }
+
+        let cartDetails = await Cart.findOne({ deviceId: req.params.deviceId }).populate("products.productId");
+        if(!cartDetails){
+            return res.status(422).json({"status":false,"data":null}) 
+        }
+        let cartData = cartHelper.calculateCart(cartDetails)
+
+        return res.status(200).json({"status":true,"data":cartData})
         
     }catch(err){
         next(err)
@@ -75,18 +103,60 @@ exports.removeItems = async (req,res,next)=>{
 exports.updateQuantity = async (req,res,next)=>{
 
     try{
+        console.log(req.body)
+        let cart = await Cart.findOne({ deviceId: req.body.deviceId });
+console.log(cart)
+        cart.products.forEach((item)=>{
+            if (item.varientId === req.body.varientId){
+                console.log(item.varientId)
+                item.quantity = req.body.mark === "p"?item.quantity+1:item.quantity-1;
+            }
+        })
+       
+        await cart.save()
 
-        let existingProducts = await Cart.findOne({ deviceId: req.body.deviceId });
+        let cartDetails = await Cart.findOne({ deviceId: req.body.deviceId }).populate("products.productId");
 
-        orderDetails.username = req.params.username
+        let cartData = cartHelper.calculateCart(cartDetails)
 
-        let query = Cart.findMany(orderDetails);
-
-
-        return res.status(200).json({"status":true,"data":null}) 
+        return res.status(200).json({"status":true,"data":cartData})
         
     }catch(err){
+        console.log(err)
         next(err)
     }
    
 }
+
+exports.updateItemVarient = async (req,res,next)=>{
+
+    try{
+
+        let cart = await Cart.findOne({ deviceId: req.body.deviceId });
+
+        cart.products.forEach((item)=>{
+            if (item.varientId === req.body.varientId){
+               
+                item.varientId = req.body.newVarientId
+                item.varient = {size:req.body.size,color:req.body.color}
+                
+                //item.varient.color = req.body.color
+                console.log(item.varient )
+            }
+        })
+       
+        await cart.save()
+
+        let cartDetails = await Cart.findOne({ deviceId: req.body.deviceId }).populate("products.productId");
+
+        let cartData = cartHelper.calculateCart(cartDetails)
+
+        return res.status(200).json({"status":true,"data":cartData})
+        
+    }catch(err){
+        console.log(err)
+        next(err)
+    }
+   
+}
+
