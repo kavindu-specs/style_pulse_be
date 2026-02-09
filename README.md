@@ -1,7 +1,3 @@
-Here’s a clean and professional **README template** for your **StylePulse Backend** project 👇
-(Structured similar to your iOS README for consistency)
-
----
 
 # ⚙️ StylePulse Backend API
 
