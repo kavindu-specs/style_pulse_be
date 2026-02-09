@@ -86,34 +86,6 @@ http://localhost:5000
 
 • 📱 [StylePulse iOS Application](https://github.com/kavindu-specs/StylePulse)
 
----
-
-## 📡 API Endpoints Overview
-
-### 🔐 Auth Routes
-
-```
-POST   /api/auth/register
-POST   /api/auth/login
-```
-
-### 👕 Product Routes
-
-```
-GET    /api/products
-GET    /api/products/:id
-POST   /api/products
-PUT    /api/products/:id
-DELETE /api/products/:id
-```
-
-### 🛒 Cart Routes
-
-```
-GET    /api/cart
-POST   /api/cart
-DELETE /api/cart/:id
-```
 
 ---
 
@@ -130,5 +102,5 @@ Authorization: Bearer <token>
 
 ## 🙋‍♂️ Author
 
-**Kavindu Prabodya Senanayake**
-[GitHub](https://github.com/kavindu-specs)
+*Kavindu Prabodya Senanayake*  
+[GitHub](https://github.com/kavindu-specs) • [LinkedIn](https://www.linkedin.com/in/kavindu-prabodya-b25125139) • [Email](mailto:kavinduprabodya@gmail.com)
